@@ -12,6 +12,7 @@
 
 #include <iostream>
 #include <libplayerc++/playerc++.h>
+#include <math.h>
 using namespace PlayerCc;  
 
 /**
@@ -138,3 +139,15 @@ void printRobotData(BumperProxy& bp, player_pose2d_t pose)
 
   
 } // End of printRobotData()
+
+// Returns angle to target coord
+// Lower is better, it means we are facing it
+double angleToTarget(double x, double y, double targetX, double targetY)
+{
+	// Totally untested
+	double length = abs(x - targetX);
+	double height = abs(y - targetY);
+	std::cout << "Length: " << length << std::endl;
+	std::cout << "height: " << height << std::endl;
+	return atan(height / length) 180 / PI;
+}
