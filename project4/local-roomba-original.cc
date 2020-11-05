@@ -1,11 +1,5 @@
-/*
+/**
  * local-roomba.cc
- * 
- * Group 12: Jennie Kang, Edmund Lam, Jamila Toaha
- *
- * Project 4: Part 1 - Blobs
- *
- * 
  * 
  * Sample code for a roomba-like robot that has two front bumpers and
  * magically knows where it is. 
@@ -73,24 +67,9 @@ int main(int argc, char *argv[])
 	turnrate= 0;
       } 
       else {
-	//turn robot counter-clockwise if the robot's current angle is less than the target position, X = 5, Y = -3.5
-	if(pose.pa < tan(2.5/11)) {
-		turnrate = dtor(10);
-	}
-	//if robot is facing the target position, go towards it
-	else if(pose.pa >= tan(2.5/11)) {
-            speed = 0.5;
-	    turnrate = 0;
-		//robot comes to a stop around X = 4.8, Y = -3.3
-		if(pose.px > 4.8 && pose.py > -4) {
-	           turnrate = 0;
-		   speed = 0;
-	        }
-	        		
-
-        } 
-      }   
-	
+	speed=.1;
+        turnrate = 0;
+      }     
 
       // What are we doing?
       std::cout << "Speed: " << speed << std::endl;      
@@ -159,4 +138,3 @@ void printRobotData(BumperProxy& bp, player_pose2d_t pose)
 
   
 } // End of printRobotData()
-

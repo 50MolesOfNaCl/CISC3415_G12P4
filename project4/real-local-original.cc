@@ -1,17 +1,14 @@
-/*
- * local-roomba.cc
+/**
+ * real-local.cc
  * 
- * Group 12: Jennie Kang, Edmund Lam, Jamila Toaha
+ * Sample code for a robot that has two front bumpers and a laser scanner,
+ * and. Suitable for use with the roomba.
  *
- * Project 4: Part 1 - Blobs
- *
- * 
- * 
- * Sample code for a roomba-like robot that has two front bumpers and
- * magically knows where it is. 
+ * This version is intended to run with the AMCL localization proxy,
+ * which provides multiple hypotheses.
  *
  * Written by: Simon Parsons
- * Date:       24th October 2011
+ * Date:       22nd November 2009
  *  
  **/
 
@@ -26,6 +23,7 @@ using namespace PlayerCc;
  **/
 
 player_pose2d_t readPosition(LocalizeProxy& lp);
+void printLaserData(LaserProxy& sp);
 void printRobotData(BumperProxy& bp, player_pose2d_t pose);
 
 /**
@@ -36,12 +34,12 @@ void printRobotData(BumperProxy& bp, player_pose2d_t pose);
 int main(int argc, char *argv[])
 {  
 
-
   // Variables
   int counter = 0;
   double speed;            // How fast do we want the robot to go forwards?
   double turnrate;         // How fast do we want the robot to turn?
   player_pose2d_t  pose;   // For handling localization data
+  player_laser_data laser; // For handling laser data
 
   // Set up proxies. These are the names we will use to connect to 
   // the interface to the robot.
@@ -49,6 +47,7 @@ int main(int argc, char *argv[])
   BumperProxy     bp(&robot,0);  
   Position2dProxy pp(&robot,0);
   LocalizeProxy   lp (&robot, 0);
+  LaserProxy      sp (&robot, 0);
 
   // Allow the program to take charge of the motors (take care now)
   pp.SetMotorEnable(true);
@@ -60,12 +59,15 @@ int main(int argc, char *argv[])
       robot.Read();
       // Read new information about position
       pose = readPosition(lp);
+      // Print information about the laser. Check the counter first to stop
+      // problems on startup
+      if(counter > 2){
+	printLaserData(sp);
+      }
 
       // Print data on the robot to the terminal
       printRobotData(bp, pose);
-
-      // This part of the code should be very familiar by now.
-      //
+      
       // If either bumper is pressed, stop. Otherwise just go forwards
 
       if(bp[0] || bp[1]){
@@ -73,24 +75,9 @@ int main(int argc, char *argv[])
 	turnrate= 0;
       } 
       else {
-	//turn robot counter-clockwise if the robot's current angle is less than the target position, X = 5, Y = -3.5
-	if(pose.pa < tan(2.5/11)) {
-		turnrate = dtor(10);
-	}
-	//if robot is facing the target position, go towards it
-	else if(pose.pa >= tan(2.5/11)) {
-            speed = 0.5;
-	    turnrate = 0;
-		//robot comes to a stop around X = 4.8, Y = -3.3
-		if(pose.px > 4.8 && pose.py > -4) {
-	           turnrate = 0;
-		   speed = 0;
-	        }
-	        		
-
-        } 
-      }   
-	
+	speed=.1;
+        turnrate = 0;
+      }     
 
       // What are we doing?
       std::cout << "Speed: " << speed << std::endl;      
@@ -110,8 +97,12 @@ int main(int argc, char *argv[])
  *
  * Read the position of the robot from the localization proxy. 
  *
- * The localization proxy gives us a hypothesis, and from that we extract
- * the mean, which is a pose. 
+ * The localization proxy gives us a set of "hypotheses", each of
+ * which is a number of possible locations for the robot, and from
+ * each we extract the mean, which is a pose.
+ *
+ * As the number of hypotheses drops, the robot should be more sure
+ * of where it is.
  *
  **/
 
@@ -121,20 +112,58 @@ player_pose2d_t readPosition(LocalizeProxy& lp)
   player_localize_hypoth_t hypothesis;
   player_pose2d_t          pose;
   uint32_t                 hCount;
+  double                   weight;
 
   // Need some messing around to avoid a crash when the proxy is
   // starting up.
 
   hCount = lp.GetHypothCount();
 
+  std::cout << "AMCL gives us " << hCount + 1 
+            << " possible locations:" << std::endl;
+
   if(hCount > 0){
-    hypothesis = lp.GetHypoth(0);
-    pose       = hypothesis.mean;
+    for(int i = 0; i <= hCount; i++){
+      hypothesis = lp.GetHypoth(i);
+      pose       = hypothesis.mean;
+      weight     = hypothesis.alpha;
+      std::cout << "X: " << pose.px << "\t";
+      std::cout << "Y: " << pose.py << "\t";
+      std::cout << "A: " << pose.pa << "\t";
+      std::cout << "W: " << weight  << std::endl;
+    }
   }
+
+  // This just returns the mean of the last hypothesis, it isn't necessarily
+  // the right one.
 
   return pose;
 } // End of readPosition()
 
+void printLaserData(LaserProxy& sp)
+{
+
+  double maxRange, minLeft, minRight, range, bearing;
+  int points;
+
+  maxRange  = sp.GetMaxRange();
+  minLeft   = sp.MinLeft();
+  minRight  = sp.MinRight();
+  range     = sp.GetRange(5);
+  bearing   = sp.GetBearing(5);
+  points    = sp.GetCount();
+
+  //Print out useful laser data
+  std::cout << "Laser says..." << std::endl;
+  std::cout << "Maximum distance I can see: " << maxRange << std::endl;
+  std::cout << "Number of readings I return: " << points << std::endl;
+  std::cout << "Closest thing on left: " << minLeft << std::endl;
+  std::cout << "Closest thing on right: " << minRight << std::endl;
+  std::cout << "Range of a single point: " << range << std::endl;
+  std::cout << "Bearing of a single point: " << bearing << std::endl;
+
+  return;
+} // End of printLaserData()
 
 /**
  *  printRobotData
@@ -150,6 +179,8 @@ void printRobotData(BumperProxy& bp, player_pose2d_t pose)
   // Print out what the bumpers tell us:
   std::cout << "Left  bumper: " << bp[0] << std::endl;
   std::cout << "Right bumper: " << bp[1] << std::endl;
+  // Can also print the bumpers with:
+  //std::cout << bp << std::endl;
 
   // Print out where we are
   std::cout << "We are at" << std::endl;
@@ -159,4 +190,3 @@ void printRobotData(BumperProxy& bp, player_pose2d_t pose)
 
   
 } // End of printRobotData()
-
