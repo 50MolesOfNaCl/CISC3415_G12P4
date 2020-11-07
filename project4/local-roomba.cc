@@ -45,7 +45,7 @@ int main(int argc, char *argv[])
   double turnrate;         // How fast do we want the robot to turn?
   player_pose2d_t  pose;   // For handling localization data
   float distance; 	   // How far is robot from the target?
-
+  double targetTan;  	   // Save the tan result for our target
   // Set up proxies. These are the names we will use to connect to 
   // the interface to the robot.
   PlayerClient    robot("localhost");  
@@ -65,7 +65,7 @@ int main(int argc, char *argv[])
       pose = readPosition(lp);
 
       distance = getDistance(pose.px, pose.py, 5, -3.5);
-
+      targetTan = getTan(pose.px, pose.py, 5, -3.5) -.1;
       // Print data on the robot to the terminal
       printRobotData(bp, pose, distance);
 
@@ -82,8 +82,15 @@ int main(int argc, char *argv[])
 //getTan   (2.5/11)
 
 //subtracting .1 to make angle less
-	if(pose.pa < getTan(pose.px, pose.py, 5, -3.5) -.1 ) {
-		turnrate = dtor(10);
+	
+	if(pose.pa < targetTan ) {
+
+
+
+	double degrees = 1 +  30 * (1- pose.pa/targetTan); //proportional control version 2 // 11 is maximum distance we think it will be. 
+
+		turnrate = dtor(degrees);
+
 	}
 	//if robot is facing the target position, go towards it
 	else if(pose.pa >= getTan (pose.px, pose.py, 5, -3.5) -.1) {
