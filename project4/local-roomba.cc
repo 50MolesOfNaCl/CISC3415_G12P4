@@ -160,7 +160,7 @@ void printRobotData(BumperProxy& bp, player_pose2d_t pose)
   
 } // End of printRobotData()
 
-void getTan(double xPos, double yPos, double xTarget, double yTarget)
+double getTan(double xPos, double yPos, double xTarget, double yTarget)
 {
     return tan( abs(yPos - yTarget) / abs(xPos-xTarget) );
 }
