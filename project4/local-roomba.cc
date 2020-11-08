@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <libplayerc++/playerc++.h>
+#include <math.h>
 using namespace PlayerCc;  
 
 /**

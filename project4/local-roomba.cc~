@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /*
  * local-roomba.cc
  * 
@@ -7,6 +8,11 @@
  *
  * 
  * 
+=======
+/**
+ * local-roomba.cc
+ * 
+>>>>>>> 2f9253f3cd127d888655e13117df114c05dc4023
  * Sample code for a roomba-like robot that has two front bumpers and
  * magically knows where it is. 
  *
@@ -160,3 +166,10 @@ void printRobotData(BumperProxy& bp, player_pose2d_t pose)
   
 } // End of printRobotData()
 
+<<<<<<< HEAD
+=======
+double azimuth(int x, int y, int targetX, int targetY)
+{
+	
+}
+>>>>>>> 2f9253f3cd127d888655e13117df114c05dc4023
