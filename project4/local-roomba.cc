@@ -56,24 +56,47 @@ int main(int argc, char *argv[])
 
   	// Main control loop
   	while(true) 
-    {    
-        // Update information from the robot.
-      	robot.Read();
-      	// Read new information about position
-      	pose = readPosition(lp);
+	{    
+        	// Update information from the robot.
+      		robot.Read();
+      		// Read new information about position
+      		pose = readPosition(lp);
+		
+      		// Print data on the robot to the terminal
+      		printRobotData(bp, pose);
+        	
+      		// This part of the code should be very familiar by now.
+      		//
+      		// If either bumper is pressed, stop. Otherwise just go forwards
 	
-      	// Print data on the robot to the terminal
-      	printRobotData(bp, pose);
-        
-      	// This part of the code should be very familiar by now.
-      	//
-      	// If either bumper is pressed, stop. Otherwise just go forwards
-	
-      	if(bp[0] || bp[1]){
-			speed= 0;
+      		if(bp[0] || bp[1]){
+			// we reverse first
+			speed= -0.1;
 			turnrate= 0;
+			pp.SetSpeed(speed, turnrate);
+			
+			speed = 0; //reset speed to 0 for turning
+
+			// Left Bumper hit, turn right
+			if (bp[0] && !bp[1]) {
+				turnrate = dtor(-10);
+			}
+			// Right bumper hit, turn left
+			else if (!bp[0] && bp[1])
+			{
+				turnrate = dtor(10);
+			}
+			// Both bumpes hit, random move
+			if (bp[0] && bp[1])
+			{
+				if(rand()%2 > 0){
+					turnrate=dtor(-10);
+				} else {
+					turnrate=dtor(10);
+				}
+			}
 		} 
-      	else 
+      		else 
 		{
 			//turn robot counter-clockwise if the robot's current angle is less than the target position, X = 5, Y = -3.5
 			if(pose.pa < tan(2.5/11)) {
