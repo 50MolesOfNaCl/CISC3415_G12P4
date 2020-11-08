@@ -37,69 +37,68 @@ int main(int argc, char *argv[])
 {  
 
 
-  // Variables
-  int counter = 0;
-  double speed;            // How fast do we want the robot to go forwards?
-  double turnrate;         // How fast do we want the robot to turn?
-  player_pose2d_t  pose;   // For handling localization data
+	// Variables
+	int counter = 0;
+  	double speed;            // How fast do we want the robot to go forwards?
+	double turnrate;         // How fast do we want the robot to turn?
+  	player_pose2d_t  pose;   // For handling localization data
 
-  // Set up proxies. These are the names we will use to connect to 
-  // the interface to the robot.
-  PlayerClient    robot("localhost");  
-  BumperProxy     bp(&robot,0);  
-  Position2dProxy pp(&robot,0);
-  LocalizeProxy   lp (&robot, 0);
+  	// Set up proxies. These are the names we will use to connect to 
+  	// the interface to the robot.
+  	PlayerClient    robot("localhost");  
+  	BumperProxy     bp(&robot,0);  
+  	Position2dProxy pp(&robot,0);
+  	LocalizeProxy   lp (&robot, 0);
 
-  // Allow the program to take charge of the motors (take care now)
-  pp.SetMotorEnable(true);
+  	// Allow the program to take charge of the motors (take care now)
+  	pp.SetMotorEnable(true);
 
-  // Main control loop
-  while(true) 
+  	// Main control loop
+  	while(true) 
     {    
-      // Update information from the robot.
-      robot.Read();
-      // Read new information about position
-      pose = readPosition(lp);
-
-      // Print data on the robot to the terminal
-      printRobotData(bp, pose);
-
-      // This part of the code should be very familiar by now.
-      //
-      // If either bumper is pressed, stop. Otherwise just go forwards
-
-      if(bp[0] || bp[1]){
-	speed= 0;
-	turnrate= 0;
-      } 
-      else {
-	//turn robot counter-clockwise if the robot's current angle is less than the target position, X = 5, Y = -3.5
-	if(pose.pa < tan(2.5/11)) {
-		turnrate = dtor(10);
-	}
-	//if robot is facing the target position, go towards it
-	else if(pose.pa >= tan(2.5/11)) {
-            speed = 0.5;
-	    turnrate = 0;
-		//robot comes to a stop around X = 4.8, Y = -3.3
-		if(pose.px > 4.8 && pose.py > -4) {
-	           turnrate = 0;
-		   speed = 0;
-	        }
-	        		
-
-        } 
-      }   
+        // Update information from the robot.
+      	robot.Read();
+      	// Read new information about position
+      	pose = readPosition(lp);
 	
-
-      // What are we doing?
-      std::cout << "Speed: " << speed << std::endl;      
-      std::cout << "Turn rate: " << turnrate << std::endl << std::endl;
-
-      // Send the commands to the robot
-      pp.SetSpeed(speed, turnrate);  
-      // Count how many times we do this
-      counter++;
+      	// Print data on the robot to the terminal
+      	printRobotData(bp, pose);
+        
+      	// This part of the code should be very familiar by now.
+      	//
+      	// If either bumper is pressed, stop. Otherwise just go forwards
+	
+      	if(bp[0] || bp[1]){
+			speed= 0;
+			turnrate= 0;
+		} 
+      	else 
+		{
+			//turn robot counter-clockwise if the robot's current angle is less than the target position, X = 5, Y = -3.5
+			if(pose.pa < tan(2.5/11)) {
+				turnrate = dtor(10);
+			}
+			//if robot is facing the target position, go towards it
+			else if(pose.pa >= tan(2.5/11)) {
+            		speed = 0.5;
+	    			turnrate = 0;
+			    //robot comes to a stop around X = 4.8, Y = -3.3
+			    if(pose.px > 4.8 && pose.py > -4) {
+	        	    turnrate = 0;
+			        speed = 0;
+	        	}
+        	}
+      	}
+	
+	
+      	// What are we doing?
+      	std::cout << "Speed: " << speed << std::endl;      
+      	std::cout << "Turn rate: " << turnrate << std::endl << std::endl;
+	
+      	// Send the commands to the robot
+      	pp.SetSpeed(speed, turnrate);  
+      	// Count how many times we do this
+      	counter++;
     }
   
 } // end of main()
@@ -160,3 +159,7 @@ void printRobotData(BumperProxy& bp, player_pose2d_t pose)
   
 } // End of printRobotData()
 
+void getTan(double xPos, double yPos, double xTarget, double yTarget)
+{
+    return tan( abs(yPos - yTarget) / abs(xPos-xTarget) );
+}
