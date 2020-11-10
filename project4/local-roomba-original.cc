@@ -1,11 +1,5 @@
-/*
+/**
  * local-roomba.cc
- * 
- * Group 12: Jennie Kang, Edmund Lam, Jamila Toaha
- *
- * Project 4: Part 1 - Blobs
- *
- * 
  * 
  * Sample code for a roomba-like robot that has two front bumpers and
  * magically knows where it is. 
@@ -26,9 +20,7 @@ using namespace PlayerCc;
  **/
 
 player_pose2d_t readPosition(LocalizeProxy& lp);
-void printRobotData(BumperProxy& bp, player_pose2d_t pose, float distance);
-double getTan(double xPos, double yPos, double xTarget, double yTarget);
-float getDistance (double xPos, double yPos, double xTarget, double yTarget);
+void printRobotData(BumperProxy& bp, player_pose2d_t pose);
 
 /**
  * main()
@@ -44,8 +36,7 @@ int main(int argc, char *argv[])
   double speed;            // How fast do we want the robot to go forwards?
   double turnrate;         // How fast do we want the robot to turn?
   player_pose2d_t  pose;   // For handling localization data
-  float distance; 	   // How far is robot from the target?
-  double targetTan;  	   // Save the tan result for our target
+
   // Set up proxies. These are the names we will use to connect to 
   // the interface to the robot.
   PlayerClient    robot("localhost");  
@@ -64,52 +55,21 @@ int main(int argc, char *argv[])
       // Read new information about position
       pose = readPosition(lp);
 
-      distance = getDistance(pose.px, pose.py, 5, -3.5);
-      targetTan = getTan(pose.px, pose.py, 5, -3.5) -.1;
       // Print data on the robot to the terminal
-      printRobotData(bp, pose, distance);
+      printRobotData(bp, pose);
 
       // This part of the code should be very familiar by now.
       //
       // If either bumper is pressed, stop. Otherwise just go forwards
-		
+
       if(bp[0] || bp[1]){
 	speed= 0;
 	turnrate= 0;
       } 
       else {
-	//turn robot counter-clockwise if the robot's current angle is less than the target position, X = 5, Y = -3.5
-//getTan   (2.5/11)
-
-//subtracting .1 to make angle less
-	
-	if(pose.pa < targetTan ) {
-
-
-
-	double degrees = 1 +  30 * (1- pose.pa/targetTan); //proportional control version 2 // 11 is maximum distance we think it will be. 
-
-		turnrate = dtor(degrees);
-
-	}
-	//if robot is facing the target position, go towards it
-	else if(pose.pa >= getTan (pose.px, pose.py, 5, -3.5) -.1) {
-
-	 //speed = 0.1 + (100 / (double) distance);	 //proportional control, version 1
-	 speed = 0.1 +  0.9 * ((double)distance/11); //proportional control version 2 // 11 is maximum distance we think it will be. 
-								//maximum speed: .5, minimum speed: .1
-	
-	    turnrate = 0;
-		//robot comes to a stop around X = 4.8, Y = -3.3
-		if(pose.px > 4.8 && pose.py > -4) {
-	           turnrate = 0;
-		   speed = 0;
-	        }
-	        		
-
-        } 
-      }   
-	
+	speed=.1;
+        turnrate = 0;
+      }     
 
       // What are we doing?
       std::cout << "Speed: " << speed << std::endl;      
@@ -163,7 +123,7 @@ player_pose2d_t readPosition(LocalizeProxy& lp)
  *
  **/
 
-void printRobotData(BumperProxy& bp, player_pose2d_t pose, float distance)
+void printRobotData(BumperProxy& bp, player_pose2d_t pose)
 {
 
   // Print out what the bumpers tell us:
@@ -175,20 +135,6 @@ void printRobotData(BumperProxy& bp, player_pose2d_t pose, float distance)
   std::cout << "X: " << pose.px << std::endl;
   std::cout << "Y: " << pose.py << std::endl;
   std::cout << "A: " << pose.pa << std::endl;
-  std::cout << "Distance from target: " << distance << std::endl;
 
   
 } // End of printRobotData()
-
-double getTan (double xPos, double yPos, double xTarget, double yTarget){
-	return tan ((yTarget - yPos) /(xTarget -xPos));
-}
-
-
-float getDistance (double xPos, double yPos, double xTarget, double yTarget) {
-	return sqrt (pow(xTarget-xPos, 2) + 
-		     pow(yTarget-yPos, 2) );
-}
-
-
-
