@@ -3,10 +3,12 @@
  * 
  * Group 12: Jennie Kang, Edmund Lam, Jamila Toaha
  *
- * Project 4: Part 1 - Blobs
+ * Project 4: Part 1 - Localization
  *
+ * Robot moves to target location using localization provideded by the Player stage
  * 
- * 
+ * 11/2020
+ *
  * Sample code for a roomba-like robot that has two front bumpers and
  * magically knows where it is. 
  *
@@ -96,14 +98,15 @@ int main(int argc, char *argv[])
 	else if(pose.pa >= getTan (pose.px, pose.py, 5, -3.5) -.1) {
 
 	 //speed = 0.1 + (100 / (double) distance);	 //proportional control, version 1
-	 speed = 0.1 +  0.9 * ((double)distance/11); //proportional control version 2 // 11 is maximum distance we think it will be. 
-								//maximum speed: .5, minimum speed: .1
+	// speed = 0.1 +  0.9 * ((double)distance/11); //proportional control version 2 // 11 is maximum distance we think it will be. //maximum speed: 1, minimum speed: .1
+ speed = 1 * ((double) distance/11); //proportional control version 3 : // Maximum speed: 1, minimum speed = 0;
 	
 	    turnrate = 0;
 		//robot comes to a stop around X = 4.8, Y = -3.3
 		if(pose.px > 4.8 && pose.py > -4) {
 	           turnrate = 0;
 		   speed = 0;
+		   break;
 	        }
 	        		
 

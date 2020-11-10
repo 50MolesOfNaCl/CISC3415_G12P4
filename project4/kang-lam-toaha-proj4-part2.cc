@@ -7,6 +7,8 @@
  *
  * Robot localizes itself using the particle filter and then navigates to target location using proportional control
  * 
+ * 11/2020
+ *
  * Sample code for a robot that has two front bumpers and a laser scanner,
  * and. Suitable for use with the roomba.
  *
