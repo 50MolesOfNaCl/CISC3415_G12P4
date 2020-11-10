@@ -18,7 +18,6 @@
  **/
 
 
-
 #include <iostream>
 #include <libplayerc++/playerc++.h>
 using namespace PlayerCc;  
@@ -81,21 +80,8 @@ int main(int argc, char *argv[])
 	turnrate= 0;
       } 
       else {
-	speed= .2;
-	turnrate = 0;
-	if(counter > 2 && sp.GetRange(180) < 2) {
-	  turnrate = dtor(60);
-	  speed = 0;
-	}
-	if(counter > 2 && sp.MinRight() < .6) {
-	  turnrate = dtor(70);
-	  speed = 0;
-	}
-	if(counter > 2 && sp.MinLeft() < .6) {
-	  turnrate = dtor(-40);
-	  speed = 0;
-	}
-
+	speed=.1;
+        turnrate = 0;
       }     
 
       // What are we doing?
@@ -162,7 +148,7 @@ player_pose2d_t readPosition(LocalizeProxy& lp)
 void printLaserData(LaserProxy& sp)
 {
 
-  double maxRange, minLeft, minRight, range, bearing, middleScanLine;
+  double maxRange, minLeft, minRight, range, bearing;
   int points;
 
   maxRange  = sp.GetMaxRange();
@@ -171,7 +157,6 @@ void printLaserData(LaserProxy& sp)
   range     = sp.GetRange(5);
   bearing   = sp.GetBearing(5);
   points    = sp.GetCount();
-  middleScanLine = sp.GetRange(180);
 
   //Print out useful laser data
   std::cout << "Laser says..." << std::endl;
@@ -179,7 +164,6 @@ void printLaserData(LaserProxy& sp)
   std::cout << "Number of readings I return: " << points << std::endl;
   std::cout << "Closest thing on left: " << minLeft << std::endl;
   std::cout << "Closest thing on right: " << minRight << std::endl;
-  std::cout << "Range of a middle scan line: " << middleScanLine << std::endl;
   std::cout << "Range of a single point: " << range << std::endl;
   std::cout << "Bearing of a single point: " << bearing << std::endl;
 
