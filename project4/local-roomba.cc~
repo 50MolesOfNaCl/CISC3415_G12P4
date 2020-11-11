@@ -3,10 +3,12 @@
  * 
  * Group 12: Jennie Kang, Edmund Lam, Jamila Toaha
  *
- * Project 4: Part 1 - Blobs
+ * Project 4: Part 1 - Localization
  *
+ * Robot moves to target location using localization provideded by the Player stage
  * 
- * 
+ * 11/2020
+ *
  * Sample code for a roomba-like robot that has two front bumpers and
  * magically knows where it is. 
  *
@@ -45,7 +47,7 @@ int main(int argc, char *argv[])
   double turnrate;         // How fast do we want the robot to turn?
   player_pose2d_t  pose;   // For handling localization data
   float distance; 	   // How far is robot from the target?
-
+  double targetTan;  	   // Save the tan result for our target
   // Set up proxies. These are the names we will use to connect to 
   // the interface to the robot.
   PlayerClient    robot("localhost");  
@@ -65,7 +67,7 @@ int main(int argc, char *argv[])
       pose = readPosition(lp);
 
       distance = getDistance(pose.px, pose.py, 5, -3.5);
-
+      targetTan = getTan(pose.px, pose.py, 5, -3.5) -.1;
       // Print data on the robot to the terminal
       printRobotData(bp, pose, distance);
 
@@ -82,11 +84,12 @@ int main(int argc, char *argv[])
 //getTan   (2.5/11)
 
 //subtracting .1 to make angle less
-	if(pose.pa < getTan(pose.px, pose.py, 5, -3.5) -.1 ) {
+	
+	if(pose.pa < targetTan ) {
 
 
 
-	double degrees = 1 +  30 * (1- (pose.pa/(getTan(pose.px, pose.py, 5, -3.5) -.1)); //proportional control version 2 // 11 is maximum distance we think it will be. 
+	double degrees = 1 +  30 * (1- pose.pa/targetTan); //proportional control version 2 // 11 is maximum distance we think it will be. 
 
 		turnrate = dtor(degrees);
 
@@ -95,8 +98,8 @@ int main(int argc, char *argv[])
 	else if(pose.pa >= getTan (pose.px, pose.py, 5, -3.5) -.1) {
 
 	 //speed = 0.1 + (100 / (double) distance);	 //proportional control, version 1
-	 speed = 0.1 +  0.9 * ((double)distance/11); //proportional control version 2 // 11 is maximum distance we think it will be. 
-								//maximum speed: .5, minimum speed: .1
+	// speed = 0.1 +  0.9 * ((double)distance/11); //proportional control version 2 // 11 is maximum distance we think it will be. //maximum speed: 1, minimum speed: .1
+ speed = 1 * ((double) distance/11); //proportional control version 3 : // Maximum speed: 1, minimum speed = 0;
 	
 	    turnrate = 0;
 		//robot comes to a stop around X = 4.8, Y = -3.3
